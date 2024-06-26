@@ -5,6 +5,27 @@
     <title>Title</title>
 </head>
 <body>
-<button>hit</button>
+<h1>WebSocket Chat</h1>
+<textarea id="chat" rows="20" cols="50" readonly></textarea><br>
+<input type="text" id="message" size="50" autofocus>
+<button onclick="sendMessage()">Send</button>
+
+<script>
+    var conn = new WebSocket('ws://localhost:9090/ws');
+    conn.onopen = function(e) {
+        console.log("Connection established!");
+    };
+
+    conn.onmessage = function(e) {
+        var chat = document.getElementById('chat');
+        chat.value += e.data + "\n";
+    };
+
+    function sendMessage() {
+        var message = document.getElementById('message').value;
+        conn.send(JSON.stringify({username: "username", message: message}));
+        document.getElementById('message').value = '';
+    }
+</script>
 </body>
 </html>
