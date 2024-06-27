@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"github.com/Chanmachan/GoChat/internal/models"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -8,7 +9,7 @@ import (
 )
 
 var clients = make(map[*websocket.Conn]bool) // 接続されているクライアント
-var broadcast = make(chan Message)           // ブロードキャストメッセージ
+var broadcast = make(chan models.Message)    // ブロードキャストメッセージ
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -57,7 +58,7 @@ func HandleConnections(w http.ResponseWriter, r *http.Request) {
 	// メッセージの受信
 	go handleRoomMessages(room)
 	for {
-		var msg Message
+		var msg models.Message
 		// 新しいメッセージをJSONとして読み込み、Message構造体にマッピング
 		if err := conn.ReadJSON(&msg); err != nil {
 			log.Println(err)
