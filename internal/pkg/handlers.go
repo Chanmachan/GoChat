@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 var clients = make(map[*websocket.Conn]bool) // 接続されているクライアント
@@ -15,39 +16,68 @@ var upgrader = websocket.Upgrader{
 }
 
 func HandleConnections(w http.ResponseWriter, r *http.Request) {
+	// urlからルーム番号を取得
+	// ルーム番号のエラーチェック
+	roomNumberStr := r.URL.Query().Get("room")
+	if roomNumberStr == "" {
+		log.Println("room number is empty")
+		return
+	}
+	// ルーム番号をint型に変換
+	roomNumber, err := strconv.Atoi(roomNumberStr)
+	if err != nil {
+		log.Println("room number is not number")
+		return
+	} else if roomNumber > 100 {
+		log.Println("room number is over 100")
+		return
+	}
+	// ルーム番号が存在しない場合はルーム作成
+	// 入力された番号ごとにルームを作成
+	room, exists := rooms[roomNumber]
+	if !exists {
+		room = CreateNewRoom(roomNumber)
+	}
+	// クライアントからのWebSocketの接続を処理
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
-	defer conn.Close()
-	clients[conn] = true
-	for {
-		var message Message
-		// 新しいメッセージをJSONとして読み込み、Message構造体にマッピング
-		err := conn.ReadJSON(&message)
+	// ルームにクライアントを追加
+	room.Clients[conn] = true
+	log.Printf("room: %d, clients: %d", room.RoomNumber, len(room.Clients))
+	// 関数が終わるときにクライアントが削除される
+	defer func(conn *websocket.Conn) {
+		err := conn.Close()
 		if err != nil {
-			log.Printf("error: %v", err)
-			delete(clients, conn)
+			log.Println(err)
+		}
+	}(conn)
+	// メッセージの受信
+	go handleRoomMessages(room)
+	for {
+		var msg Message
+		// 新しいメッセージをJSONとして読み込み、Message構造体にマッピング
+		if err := conn.ReadJSON(&msg); err != nil {
+			log.Println(err)
+			delete(room.Clients, conn)
 			break
 		}
-		// 受け取ったメッセージをbroadcastチャネルに送る
-		broadcast <- message
+		room.Broadcast <- msg
 	}
 }
 
-func HandleMessages() {
-	for {
-		// メッセージを受信
-		msg := <-broadcast
-		// クライアントにメッセージを送信
-		for client := range clients {
-			err := client.WriteJSON(msg)
-			if err != nil {
-				log.Printf("error: %v", err)
-				client.Close()
-				delete(clients, client)
+func handleRoomMessages(room *Room) {
+	for msg := range room.Broadcast {
+		for client := range room.Clients {
+			if err := client.WriteJSON(msg); err != nil {
+				log.Printf("Error sending message: %v", err)
+				err := client.Close()
+				if err != nil {
+					return
+				}
+				delete(room.Clients, client)
 			}
 		}
 	}

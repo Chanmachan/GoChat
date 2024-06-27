@@ -26,9 +26,9 @@
         var roomNumber = document.getElementById('roomNumber').value;
         document.getElementById('roomSelection').style.display = 'none';
         document.getElementById('chatRoom').style.display = 'block';
-
         // WebSocket connection initialization with room number
         conn = new WebSocket('ws://localhost:9090/ws?room=' + encodeURIComponent(roomNumber));
+        console.log('ws://localhost:9090/ws?room=' + encodeURIComponent(roomNumber))
         conn.onopen = function(e) {
             console.log("Connection established to room " + roomNumber);
         };
@@ -40,6 +40,7 @@
 
     function sendMessage() {
         var message = document.getElementById('message').value;
+        console.log("Sending message: " + message);
         conn.send(JSON.stringify({username: "username", message: message}));
         document.getElementById('message').value = '';
     }
