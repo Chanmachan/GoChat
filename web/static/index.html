@@ -3,22 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>WebSocket Chat Room</title>
+    <script src="js/router.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/chat.js"></script>
 </head>
 <body>
-<div id="roomSelection">
-    <h1>Enter Chat Room</h1>
-    <input type="text" id="roomNumber" placeholder="Enter Room Number" autofocus>
-    <button onclick="joinRoom()">Join Room</button>
-</div>
-
-<div id="chatRoom" style="display: none;">
-    <h1>WebSocket Chat</h1>
-    <textarea id="chat" rows="20" cols="50" readonly></textarea><br>
-    <input type="text" id="message" size="50">
-    <button onclick="sendMessage()">Send</button>
-    <button onclick="leaveRoom()">Leave Room</button>
-</div>
-
-<script src="/js/chat.js"></script>
+<div id="app">Loading...</div>
+<script>
+    window.addEventListener('load', router);
+</script>
 </body>
 </html>
