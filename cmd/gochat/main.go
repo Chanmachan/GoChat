@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// ファイルを指定する
-	fs := http.FileServer(http.Dir("web/template"))
+	fs := http.FileServer(http.Dir("web/static"))
 	http.Handle("/", fs)
 	// クライアントからのWebSocketの接続を処理
 	http.HandleFunc("/ws", pkg.HandleConnections)

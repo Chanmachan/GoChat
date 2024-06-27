@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Chat Room</title>
+</head>
+<body>
+<div id="roomSelection">
+    <h1>Enter Chat Room</h1>
+    <input type="text" id="roomNumber" placeholder="Enter Room Number" autofocus>
+    <button onclick="joinRoom()">Join Room</button>
+</div>
+
+<div id="chatRoom" style="display: none;">
+    <h1>WebSocket Chat</h1>
+    <textarea id="chat" rows="20" cols="50" readonly></textarea><br>
+    <input type="text" id="message" size="50">
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="leaveRoom()">Leave Room</button>
+</div>
+
+<script src="/js/chat.js"></script>
+</body>
+</html>
