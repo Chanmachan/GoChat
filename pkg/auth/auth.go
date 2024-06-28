@@ -28,6 +28,10 @@ var (
 	oauth2Config *oauth2.Config
 )
 
+func GetStore() *sessions.CookieStore {
+	return store
+}
+
 func SetUp() {
 	oauth2Config = &oauth2.Config{
 		ClientID:     os.Getenv("OAUTH_CLIENT_ID"),

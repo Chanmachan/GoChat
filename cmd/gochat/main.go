@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Chanmachan/GoChat/internal/api"
 	"github.com/Chanmachan/GoChat/internal/pkg"
 	"github.com/Chanmachan/GoChat/pkg/auth"
 	"github.com/joho/godotenv"
@@ -19,6 +20,8 @@ func main() {
 	// ファイルを指定する
 	fs := http.FileServer(http.Dir("web/static"))
 	http.Handle("/", fs)
+	// api
+	http.HandleFunc("/api/userinfo", api.UserInfoHandler)
 	// クライアントからのWebSocketの接続を処理
 	http.HandleFunc("/ws", pkg.HandleConnections)
 
