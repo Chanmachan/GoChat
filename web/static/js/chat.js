@@ -26,8 +26,10 @@ function showChat() {
 
 function joinRoom() {
     var roomNumber = document.getElementById('roomNumber').value;
-    // document.getElementById('roomSelection').style.display = 'none';
-    // document.getElementById('chatRoom').style.display = 'block';
+    if (!/^\d+$/.test(roomNumber)) {
+        alert("Please enter a valid room number. Room number should only contain digits.");
+        return; // 数字以外が入力された場合、ここで処理を中断しユーザーに警告
+    }
     conn = new WebSocket('ws://localhost:9090/ws?room=' + encodeURIComponent(roomNumber));
     console.log('ws://localhost:9090/ws?room=' + encodeURIComponent(roomNumber))
     conn.onopen = function(e) {
