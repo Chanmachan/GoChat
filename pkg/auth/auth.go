@@ -63,7 +63,11 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 // CallBackHandler 認可サーバーからのリダイレクトに対するハンドラー
 func CallBackHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "auth-session")
+	session, err := store.Get(r, "auth-session")
+	if err != nil {
+		http.Error(w, "Failed to get session: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 	if r.URL.Query().Get("state") != session.Values["state"] {
 		http.Error(w, "State did not match", http.StatusBadRequest)
 		return
