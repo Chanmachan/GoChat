@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"github.com/Chanmachan/GoChat/pkg/random"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"io"
@@ -11,13 +12,15 @@ import (
 	"os"
 )
 
-// var state = GenerateRandomString()
 var (
-	verifier     = oauth2.GenerateVerifier()
+	state        string
+	verifier     string
 	oauth2Config *oauth2.Config // グローバル変数として設定を保持
 )
 
-func InitOAuthConfig() {
+func SetUp() {
+	state = random.GenerateRandomString()
+	verifier = oauth2.GenerateVerifier()
 	oauth2Config = &oauth2.Config{
 		ClientID:     os.Getenv("OAUTH_CLIENT_ID"),
 		ClientSecret: os.Getenv("OAUTH_CLIENT_SECRET"),
@@ -35,16 +38,19 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(os.Getenv("OAUTH_CLIENT_SECRET"))
 	// リクエスト先のURLを作成する
 	// AccessTypeOfflineを設定するとリフレッシュトークンの期限が無期限になる
-	url := oauth2Config.AuthCodeURL("state", oauth2.AccessTypeOffline, oauth2.S256ChallengeOption(verifier))
+	url := oauth2Config.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.S256ChallengeOption(verifier))
 	log.Println("OAuth Redirect URL:", url)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 // CallBackHandler 認可サーバーからのリダイレクトに対するハンドラー
 func CallBackHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Query().Get("state") != state {
+		http.Error(w, "State did not match", http.StatusBadRequest)
+		return
+	}
 	code := r.URL.Query().Get("code")
 	if code == "" {
-		log.Println("Code not found in request")
 		http.Error(w, "Code parameter is missing", http.StatusBadRequest)
 		return
 	}

@@ -13,7 +13,7 @@ func main() {
 		log.Fatal("Failed to load .env file")
 	}
 	// auth
-	auth.InitOAuthConfig()
+	auth.SetUp()
 	http.HandleFunc("/auth", auth.LoginHandler)
 	http.HandleFunc("/auth/callback", auth.CallBackHandler)
 	// ファイルを指定する

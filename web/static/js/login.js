@@ -1,6 +1,6 @@
 function loginWithGoogle() {
     // Google OAuth リダイレクト処理
-    window.location.href = "/auth";
+    window.location.href = "/auth/";
 }
 
 function showLogin() {
