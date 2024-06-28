@@ -14,7 +14,7 @@ func main() {
 	}
 	// auth
 	auth.SetUp()
-	http.HandleFunc("/auth", auth.LoginHandler)
+	http.HandleFunc("/auth/", auth.LoginHandler)
 	http.HandleFunc("/auth/callback", auth.CallBackHandler)
 	// ファイルを指定する
 	fs := http.FileServer(http.Dir("web/static"))
