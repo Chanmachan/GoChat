@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"github.com/Chanmachan/GoChat/pkg/random"
 	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
@@ -13,12 +13,15 @@ import (
 	"os"
 )
 
-//var (
-//	state        string
-//	verifier     string
-//	oauth2Config *oauth2.Config // グローバル変数として設定を保持
-//)
-//
+type UserInfo struct {
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Name          string `json:"name"`
+	GivenName     string `json:"given_name"`
+	FamilyName    string `json:"family_name"`
+	Picture       string `json:"picture"`
+}
 
 var (
 	store        *sessions.CookieStore
@@ -40,7 +43,7 @@ func SetUp() {
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "session-name")
+	session, _ := store.Get(r, "auth-session")
 	// OAuthリダイレクトの際にCSRF攻撃を防ぐために使用され、認証要求が開始された同じユーザーによって完了されることを確認する
 	state := random.GenerateRandomString()
 	// PKCE（Proof Key for Code Exchange）プロセスで使用され、認証コードをトークンに交換する際の追加の保護
@@ -56,7 +59,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 // CallBackHandler 認可サーバーからのリダイレクトに対するハンドラー
 func CallBackHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "session-name")
+	session, _ := store.Get(r, "auth-session")
 	if r.URL.Query().Get("state") != session.Values["state"] {
 		http.Error(w, "State did not match", http.StatusBadRequest)
 		return
@@ -89,5 +92,13 @@ func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to read response body: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(string(data))
+	var userInfo UserInfo
+	if err := json.Unmarshal(data, &userInfo); err != nil {
+		http.Error(w, "Failed to unmarshal user info: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// ユーザー情報をセッションに保存 -> セッションの状態がSaveで自動的にクライアントに同期
+	session.Values["userInfo"] = userInfo
+	session.Save(r, w)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
