@@ -8,9 +8,6 @@ import (
 	"strconv"
 )
 
-var clients = make(map[*websocket.Conn]bool) // 接続されているクライアント
-var broadcast = make(chan models.Message)    // ブロードキャストメッセージ
-
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
