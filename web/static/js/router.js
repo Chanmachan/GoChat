@@ -11,8 +11,7 @@ function router() {
             showChat();
             break;
         default:
-            // showLogin();  // デフォルトのビュー
-            showRoomSelection();
+            showLogin();  // デフォルトのビュー
     }
 }
 

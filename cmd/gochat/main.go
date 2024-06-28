@@ -2,11 +2,20 @@ package main
 
 import (
 	"github.com/Chanmachan/GoChat/internal/pkg"
+	"github.com/Chanmachan/GoChat/pkg/auth"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 )
 
 func main() {
+	if godotenv.Load() != nil {
+		log.Fatal("Failed to load .env file")
+	}
+	// auth
+	auth.InitOAuthConfig()
+	http.HandleFunc("/auth", auth.LoginHandler)
+	http.HandleFunc("/auth/callback", auth.CallBackHandler)
 	// ファイルを指定する
 	fs := http.FileServer(http.Dir("web/static"))
 	http.Handle("/", fs)
