@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/Chanmachan/GoChat/pkg/auth"
 	"net/http"
 )
@@ -12,10 +13,16 @@ func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed get session error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if data, ok := session.Values["userInfo"].(string); ok && data != "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(data))
-	} else {
+	userinfo, ok := session.Values["userInfo"].(auth.UserInfo)
+	if !ok || userinfo.Name == "" {
 		http.Error(w, "No user data available", http.StatusNotFound)
+		return
 	}
+	respData, err := json.Marshal(userinfo)
+	if err != nil {
+		http.Error(w, "Failed marshal user data: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(respData)
 }
