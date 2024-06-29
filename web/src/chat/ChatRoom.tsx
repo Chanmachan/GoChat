@@ -8,6 +8,7 @@ interface Message {
   username: string;
   message: string;
   picture?: string;
+  timestamp: string;
 }
 
 const ChatRoom = () => {
@@ -52,7 +53,8 @@ const ChatRoom = () => {
       setChat(prev => [...prev, {
         username: data.username,
         message: data.message,
-        picture: data.picture // 画像があれば追加、なければ undefined
+        picture: data.picture, // 画像があれば追加、なければ undefined
+        timestamp: new Date().toISOString(),
       }]);
     };
 
@@ -69,8 +71,9 @@ const ChatRoom = () => {
     if (connRef.current && message && userInfo) {
       const payload = {
         username: userInfo.name,
-        message, picture:
-        userInfo.picture
+        message,
+        picture: userInfo.picture,
+        timestamp: new Date().toISOString(),
       };
       connRef.current.send(JSON.stringify(payload));
       // メッセージボックスをリセット
@@ -105,6 +108,11 @@ const ChatRoom = () => {
                 <Text fontWeight="bold">{msg.username}</Text>
                 <Text>{msg.message}</Text>
               </Box>
+              <Text p={1} fontSize="xs" color="gray.500">
+                {new Date(msg.timestamp).toLocaleDateString()} {/* 年月日 */}
+                <br/>
+                {new Date(msg.timestamp).toLocaleTimeString()} {/* 時間 */}
+              </Text>
             </Flex>
           ))}
         </VStack>
