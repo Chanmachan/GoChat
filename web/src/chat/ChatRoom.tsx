@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
@@ -6,7 +6,6 @@ const ChatRoom = () => {
   const { roomNumber } = useParams<{ roomNumber?: string }>();
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState<string[]>([]);
-  // const [conn, setConn] = useState<WebSocket | null>(null);
   const connRef = React.useRef<ReconnectingWebSocket>()
 
   useEffect(() => {
