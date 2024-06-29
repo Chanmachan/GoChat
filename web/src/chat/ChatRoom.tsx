@@ -6,7 +6,7 @@ const ChatRoom = () => {
   const { roomNumber } = useParams<{ roomNumber?: string }>();
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState<string[]>([]);
-  const [conn, setConn] = useState<WebSocket | null>(null);
+  // const [conn, setConn] = useState<WebSocket | null>(null);
   const connRef = React.useRef<ReconnectingWebSocket>()
 
   useEffect(() => {
@@ -39,8 +39,8 @@ const ChatRoom = () => {
   }, [roomNumber]);
 
   const sendMessage = () => {
-    if (conn && message) {
-      conn.send(JSON.stringify({ username: "username", message }));
+    if (connRef.current && message) {
+      connRef.current.send(JSON.stringify({ username: "username", message }));
       setMessage('');
     }
   };
