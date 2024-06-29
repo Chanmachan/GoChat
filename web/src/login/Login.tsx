@@ -1,19 +1,22 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
-const Login: React.FC = () => {
-  const navigate = useNavigate();
-
-  const handleLogin = () => {
-    // ここで認証処理を行う想定
-    navigate('/room-selection');
+const Login = () => {
+  const handleLogin = async () => {
+    fetch('http://localhost:9090/auth/', {
+      credentials: 'include'
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.url);
+        window.location.href = data.url;  // URLからのリダイレクト
+      })
+      .catch(error => {
+        console.error('ログイン失敗:', error);
+      });
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <button onClick={handleLogin}>Login</button>
-    </div>
+    <button onClick={handleLogin}>ログイン</button>
   );
 };
 

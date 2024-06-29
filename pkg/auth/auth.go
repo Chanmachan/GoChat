@@ -24,13 +24,9 @@ type UserInfo struct {
 }
 
 var (
-	store        *sessions.CookieStore
+	Store        *sessions.CookieStore
 	oauth2Config *oauth2.Config
 )
-
-func GetStore() *sessions.CookieStore {
-	return store
-}
 
 func SetUp() {
 	oauth2Config = &oauth2.Config{
@@ -43,27 +39,31 @@ func SetUp() {
 		},
 		Endpoint: google.Endpoint,
 	}
-	store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+	Store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
+	Store.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   3600 * 24, // 24 hours
+		HttpOnly: true,
+		//Secure:   true,                 // HTTPS環境下でのみ設定
+		SameSite: http.SameSiteLaxMode, // ブラウザによるクロスサイトリクエストの扱い
+	}
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "auth-session")
-	// OAuthリダイレクトの際にCSRF攻撃を防ぐために使用され、認証要求が開始された同じユーザーによって完了されることを確認する
+	session, _ := Store.Get(r, "auth-session")
 	state := random.GenerateRandomString()
-	// PKCE（Proof Key for Code Exchange）プロセスで使用され、認証コードをトークンに交換する際の追加の保護
 	verifier := oauth2.GenerateVerifier()
 	session.Values["state"] = state
 	session.Values["verifier"] = verifier
 	session.Save(r, w)
-	// リクエスト先のURLを作成する
-	// AccessTypeOfflineを設定するとリフレッシュトークンの期限が無期限になる
 	url := oauth2Config.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.S256ChallengeOption(verifier))
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"url": url})
 }
 
 // CallBackHandler 認可サーバーからのリダイレクトに対するハンドラー
 func CallBackHandler(w http.ResponseWriter, r *http.Request) {
-	session, err := store.Get(r, "auth-session")
+	session, err := Store.Get(r, "auth-session")
 	if err != nil {
 		http.Error(w, "Failed to get session: "+err.Error(), http.StatusInternalServerError)
 		log.Println("Failed to get session: " + err.Error())
@@ -114,8 +114,13 @@ func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["access_token"] = token.AccessToken
 	session.Values["refresh_token"] = token.RefreshToken
 	session.Values["expiry"] = token.Expiry
-	session.Values["userInfo"] = userInfo
-	log.Printf("Retrieved UserInfo: %+v", userInfo)
+	//session.Values["userInfo"] = userInfo
+	//session.Values["id"] = userInfo.ID
+	session.Values["name"] = userInfo.Name
+	//session.Values["email"] = userInfo.Email
+	//session.Values["verified_email"] = userInfo.VerifiedEmail
 	session.Save(r, w)
+	tmp, _ := Store.Get(r, "auth-session")
+	log.Printf("Retrieved UserInfo: %+v", tmp.Values["name"])
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
