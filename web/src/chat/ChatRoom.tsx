@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 
 const ChatRoom = () => {
   const { roomNumber } = useParams<{ roomNumber?: string }>();
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState<string[]>([]);
-  const connRef = useRef<WebSocket | null>(null);
+  const [conn, setConn] = useState<WebSocket | null>(null);
+  const connRef = React.useRef<ReconnectingWebSocket>()
 
   useEffect(() => {
     if (!roomNumber) {
@@ -13,7 +15,9 @@ const ChatRoom = () => {
       return;
     }
 
-    const newConn = new WebSocket(`ws://localhost:9090/ws?room=${encodeURIComponent(roomNumber)}`);
+    const newConn = new ReconnectingWebSocket(
+      `ws://localhost:9090/ws?room=${encodeURIComponent(roomNumber)}`
+    );
     connRef.current = newConn;
 
     newConn.onopen = () => {
@@ -35,8 +39,8 @@ const ChatRoom = () => {
   }, [roomNumber]);
 
   const sendMessage = () => {
-    if (connRef.current && message) {
-      connRef.current.send(JSON.stringify({ username: "username", message }));
+    if (conn && message) {
+      conn.send(JSON.stringify({ username: "username", message }));
       setMessage('');
     }
   };
@@ -49,8 +53,12 @@ const ChatRoom = () => {
     <div>
       <h1>WebSocket Chat in Room {roomNumber}</h1>
       <textarea value={chat.join('\n')} readOnly />
-      <input type="text" value={message} onChange={(e) => setMessage(e.target.value)}
-             onKeyDown={(e) => e.key === 'Enter' && sendMessage()} />
+      <input
+        type="text"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+      />
       <button onClick={sendMessage}>Send</button>
     </div>
   );
