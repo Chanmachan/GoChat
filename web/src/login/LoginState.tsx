@@ -1,4 +1,3 @@
-// SuccessPage.js
 import {useLocation, useNavigate} from 'react-router-dom';
 import {useEffect} from 'react';
 
@@ -8,6 +7,7 @@ const LoginState = () => {
   const queryParams = new URLSearchParams(location.search);
   const status = queryParams.get('status');
 
+  // 画面がロードされた後に実行される関数をセット
   useEffect(() => {
     if (status === 'success') {
       setTimeout(() => {
