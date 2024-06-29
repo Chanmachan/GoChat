@@ -7,26 +7,6 @@ import (
 	"net/http"
 )
 
-func GetUserHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("start GetUserHandler")
-	// ここでユーザーの認証状態をチェックするロジックを実装
-	// 例: sessionからユーザー情報を取得し、存在しない場合はリダイレクト
-	session, err := auth.Store.Get(r, "auth-session")
-	if err != nil || session.Values["userInfo"] == nil {
-		// 認証されていないユーザーの場合、OAuth認証プロセスを開始
-		log.Println("trying redirect ... ")
-		authURL := "http://localhost:9090/auth/" // OAuth開始のためのURL
-		http.Redirect(w, r, authURL, http.StatusSeeOther)
-		return
-	}
-
-	// 認証済みのユーザーの場合、ユーザー情報を返す
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(session.Values["userInfo"])
-
-	log.Println("end GetUserHandler")
-}
-
 // UserInfoHandler - 認証されたユーザーの情報をフロントエンドに送信するためのハンドラー
 func UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := auth.Store.Get(r, "auth-session")
