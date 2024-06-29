@@ -62,15 +62,18 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	session.Save(r, w)
 	url := oauth2Config.AuthCodeURL(state, oauth2.AccessTypeOffline, oauth2.S256ChallengeOption(verifier))
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"url": url})
+	err := json.NewEncoder(w).Encode(map[string]string{"url": url})
+	if err != nil {
+		handleError(w, "Failed to encode response", err, http.StatusInternalServerError)
+		return
+	}
 }
 
 // CallBackHandler 認可サーバーからのリダイレクトに対するハンドラー
 func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := Store.Get(r, "auth-session")
 	if err != nil {
-		http.Error(w, "Failed to get session: "+err.Error(), http.StatusInternalServerError)
-		log.Println("Failed to get session: " + err.Error())
+		handleError(w, "Failed to get session: ", err, http.StatusInternalServerError)
 		return
 	}
 	if r.URL.Query().Get("state") != session.Values["state"] {
@@ -82,16 +85,14 @@ func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 	// 認証コードをトークンに変換
 	token, err := oauth2Config.Exchange(context.Background(), r.URL.Query().Get("code"), oauth2.SetAuthURLParam("code_verifier", session.Values["verifier"].(string)))
 	if err != nil {
-		http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
-		log.Println("Failed to exchange token: " + err.Error())
+		handleError(w, "Failed to exchange token: ", err, http.StatusInternalServerError)
 		return
 	}
 	// トークンを使い、HTTPクライアントを取得
 	client := oauth2Config.Client(context.Background(), token)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
-		http.Error(w, "Failed to get user info: "+err.Error(), http.StatusInternalServerError)
-		log.Println("Failed to get user info: " + err.Error())
+		handleError(w, "Failed to get user info: ", err, http.StatusInternalServerError)
 		return
 	}
 	// bodyをcloseするのは呼び出し側の責任
@@ -104,14 +105,12 @@ func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 	}(resp.Body)
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		http.Error(w, "Failed to read response body: "+err.Error(), http.StatusInternalServerError)
-		log.Println("Failed to read response body: " + err.Error())
+		handleError(w, "Failed to read response body: ", err, http.StatusInternalServerError)
 		return
 	}
 	var userInfo UserInfo
 	if err := json.Unmarshal(data, &userInfo); err != nil {
-		http.Error(w, "Failed to unmarshal user info: "+err.Error(), http.StatusInternalServerError)
-		log.Println("Failed to unmarshal user info: " + err.Error())
+		handleError(w, "Failed to unmarshal user info: ", err, http.StatusInternalServerError)
 		return
 	}
 	// ユーザー情報をセッションに保存 -> セッションの状態がSaveで自動的にクライアントに同期
@@ -120,9 +119,13 @@ func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["expiry"] = token.Expiry
 	session.Values["userInfo"] = userInfo
 	if err := session.Save(r, w); err != nil {
-		log.Printf("Failed to save session: %s", err.Error())
-		http.Error(w, "Failed to save session: "+err.Error(), http.StatusInternalServerError)
+		handleError(w, "Failed to save session: ", err, http.StatusInternalServerError)
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func handleError(w http.ResponseWriter, msg string, err error, statusCode int) {
+	log.Printf("%s: %s\n", msg, err.Error())
+	http.Error(w, msg+err.Error(), statusCode)
 }
