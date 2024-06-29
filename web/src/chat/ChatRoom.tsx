@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import { useUser } from '../contexts/UserContexts';
 
 const ChatRoom = () => {
   // パラメータからroom番号を取得ため
@@ -11,6 +12,8 @@ const ChatRoom = () => {
   const [chat, setChat] = useState<string[]>([]);
   // 再レンダリングされたときにでもソケットを保存しておける
   const connRef = React.useRef<ReconnectingWebSocket>()
+  // ユーザー情報を取得
+  const { userInfo } = useUser();
 
   // コンポーネントがマウントされた(roomNumberが変更されるたび)後に実行される
   useEffect(() => {
@@ -58,6 +61,12 @@ const ChatRoom = () => {
   return (
     <div>
       <h1>WebSocket Chat in Room {roomNumber}</h1>
+      {userInfo && (
+        <div>
+          <img src={userInfo.picture} alt="User" style={{ width: 50, height: 50 }} />
+          <h2>{userInfo.name}</h2>
+        </div>
+      )}
       <textarea value={chat.join('\n')} readOnly />
       <input
         type="text"
