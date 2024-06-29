@@ -7,6 +7,7 @@ function showRoomSelection() {
             <h1>Enter Chat Room</h1>
             <input type="text" id="roomNumber" placeholder="Enter Room Number" autofocus>
             <button onclick="joinRoom()">Join Room</button>
+            <button onclick="fetchUserInfo()">Fetch User Info</button>
         </div>
     `;
 }
@@ -40,6 +41,28 @@ function joinRoom() {
         chat.value += e.data + "\n";
     };
     navigate("/chat");
+}
+
+function fetchUserInfo() {
+    fetch('/api/userinfo', {
+        method: 'Get',
+        credentials: 'include',
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch user info');
+            }
+            console.log("hogehogo");
+            return response.json();
+        })
+        .then(data => {
+            console.log("User Info:", data);
+            alert("User Info: " + JSON.stringify(data));
+        })
+        .catch(error => {
+            console.error('Error fetching user info:', error);
+            alert('Error fetching user info: ' + error.message);
+        });
 }
 
 function sendMessage() {
