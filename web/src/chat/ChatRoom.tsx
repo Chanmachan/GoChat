@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { useUser } from '../contexts/UserContexts';
+import { Box, Button, VStack, Flex, Text, Input, useToast, Avatar, Container } from '@chakra-ui/react';
+
+interface Message {
+  username: string;
+  message: string;
+  picture?: string;
+}
 
 const ChatRoom = () => {
   // パラメータからroom番号を取得ため
@@ -9,17 +16,24 @@ const ChatRoom = () => {
   // 入力するメッセージを保存するため
   const [message, setMessage] = useState('');
   // チャット履歴を配列として保存するため
-  const [chat, setChat] = useState<string[]>([]);
+  const [chat, setChat] = useState<Message[]>([]);
   // 再レンダリングされたときにでもソケットを保存しておける
   const connRef = React.useRef<ReconnectingWebSocket>()
   // ユーザー情報を取得
   const { userInfo } = useUser();
   const navigate = useNavigate();
+  const toast = useToast();
 
   // コンポーネントがマウントされた(roomNumberが変更されるたび)後に実行される
   useEffect(() => {
     if (!roomNumber) {
-      console.error('Room number is undefined.');
+      toast({
+        title: 'Error',
+        description: 'Room number is undefined.',
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
       return;
     }
 
@@ -35,7 +49,11 @@ const ChatRoom = () => {
 
     socket.onmessage = (e) => {
       const data = JSON.parse(e.data);
-      setChat(prev => [...prev, `${data.username}: ${data.message}`]);
+      setChat(prev => [...prev, {
+        username: data.username,
+        message: data.message,
+        picture: data.picture // 画像があれば追加、なければ undefined
+      }]);
     };
 
     socket.onerror = (e) => {
@@ -45,13 +63,24 @@ const ChatRoom = () => {
     return () => {
       socket.close();
     };
-  }, [roomNumber]);
+  }, [roomNumber, toast]);
 
   const sendMessage = () => {
-    if (connRef.current && message) {
-      connRef.current.send(JSON.stringify({ username: "username", message }));
+    if (connRef.current && message && userInfo) {
+      const payload = {
+        username: userInfo.name,
+        message, picture:
+        userInfo.picture
+      };
+      connRef.current.send(JSON.stringify(payload));
       // メッセージボックスをリセット
       setMessage('');
+    }
+  };
+
+  const leaveRoom = () => {
+    if (window.confirm("Are you sure you want to leave the room?")) {
+      navigate("/room-selection");
     }
   };
 
@@ -60,26 +89,36 @@ const ChatRoom = () => {
   }
 
   return (
-    <div>
-      <h1>WebSocket Chat in Room {roomNumber}</h1>
-      {userInfo && (
-        <div>
-          <img src={userInfo.picture} alt="User" style={{ width: 50, height: 50 }} />
-          <h2>{userInfo.name}</h2>
-        </div>
-      )}
-      <textarea value={chat.join('\n')} readOnly />
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-      />
-      <button onClick={sendMessage}>Send</button>
-      <button onClick={() => {
-        navigate("/room-selection");
-      }} >leave room</button>
-    </div>
+    <Container maxW="container.md" centerContent p={4}>
+      <Flex direction="column" align="stretch" w="100%">
+        <Box position="fixed" right="10px" top="10px">
+          <Button colorScheme="red" size="sm" onClick={leaveRoom}>
+            Leave Room
+          </Button>
+        </Box>
+        <Text fontSize="2xl" fontWeight="bold">GoChat in Room {roomNumber}</Text>
+        <VStack spacing={4} align="stretch" overflowY="auto" h="lg" p={4} borderWidth="1px" borderRadius="lg">
+          {chat.map((msg, index) => (
+            <Flex key={index} align="center">
+              <Avatar size="sm" src={msg.picture} name={msg.username} mr={2} />
+              <Box p={2} bg="blue.100" borderRadius="lg">
+                <Text fontWeight="bold">{msg.username}</Text>
+                <Text>{msg.message}</Text>
+              </Box>
+            </Flex>
+          ))}
+        </VStack>
+        <Flex mt={2}>
+          <Input
+            placeholder="Type a message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={(event) => event.key === 'Enter' && sendMessage()}
+          />
+          <Button ml={2} colorScheme="blue" onClick={sendMessage}>Send</Button>
+        </Flex>
+      </Flex>
+    </Container>
   );
 };
 
