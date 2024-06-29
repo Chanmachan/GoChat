@@ -7,6 +7,7 @@ import ChatRoom from './chat/ChatRoom';
 import RoomSelection from './room/RoomSelection';
 import LoginState from './login/LoginState';
 import {UserProvider} from './contexts/UserContexts';
+import ProtectedRoute from './login/ProtectedRoute';
 
 const App: React.FC = () => {
   return (
@@ -14,8 +15,16 @@ const App: React.FC = () => {
       <UserProvider>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/room-selection" element={<RoomSelection />} />
-          <Route path="/chat-room/:roomNumber" element={<ChatRoom />} />
+          <Route path="/room-selection" element={
+            <ProtectedRoute>
+              <RoomSelection />
+            </ProtectedRoute>
+          } />
+          <Route path="/chat-room/:roomNumber" element={
+            <ProtectedRoute>
+              <ChatRoom />
+            </ProtectedRoute>
+          } />
           <Route path="/login-state" element={<LoginState />} />
         </Routes>
       </UserProvider>
