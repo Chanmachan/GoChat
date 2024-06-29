@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { useUser } from '../contexts/UserContexts';
 
@@ -14,6 +14,7 @@ const ChatRoom = () => {
   const connRef = React.useRef<ReconnectingWebSocket>()
   // ユーザー情報を取得
   const { userInfo } = useUser();
+  const navigate = useNavigate();
 
   // コンポーネントがマウントされた(roomNumberが変更されるたび)後に実行される
   useEffect(() => {
@@ -75,6 +76,9 @@ const ChatRoom = () => {
         onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
       />
       <button onClick={sendMessage}>Send</button>
+      <button onClick={() => {
+        navigate("/room-selection");
+      }} >leave room</button>
     </div>
   );
 };
