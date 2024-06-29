@@ -5,6 +5,7 @@ import {BrowserRouter, Route, Router, Routes} from 'react-router-dom';
 import Login from './login/Login';
 import ChatRoom from './chat/ChatRoom';
 import RoomSelection from './room/RoomSelection';
+import LoginState from './login/LoginState';
 
 const App: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ const App: React.FC = () => {
         <Route path="/" element={<Login />} />
         <Route path="/room-selection" element={<RoomSelection />} />
         <Route path="/chat-room/:roomNumber" element={<ChatRoom />} />
+        <Route path="/login-state" element={<LoginState />} />
       </Routes>
     </BrowserRouter>
   );
