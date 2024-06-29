@@ -34,7 +34,7 @@ func main() {
 	// api
 	// ハンドラーの設定
 	router.HandleFunc("/api/userinfo", api.UserInfoHandler).Methods("GET")
-	router.HandleFunc("/api/user", api.GetUserHandler).Methods("GET")
+	router.HandleFunc("/api/login", api.GetUserHandler).Methods("GET")
 
 	// CORSミドルウェアを使用
 	handler := c.Handler(router)
