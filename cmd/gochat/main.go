@@ -35,11 +35,11 @@ func main() {
 	// ハンドラーの設定
 	router.HandleFunc("/api/userinfo", api.UserInfoHandler).Methods("GET")
 	router.HandleFunc("/api/login", api.GetUserHandler).Methods("GET")
+	// クライアントからのWebSocketの接続を処理
+	router.HandleFunc("/ws", pkg.HandleConnections)
 
 	// CORSミドルウェアを使用
 	handler := c.Handler(router)
-	// クライアントからのWebSocketの接続を処理
-	http.HandleFunc("/ws", pkg.HandleConnections)
 
 	err := http.ListenAndServe(":9090", handler)
 	if err != nil {

@@ -1,30 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
-const ChatRoom: React.FC = () => {
-  const { roomNumber } = useParams();
+const ChatRoom = () => {
+  const { roomNumber } = useParams<{ roomNumber?: string }>();
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState<string[]>([]);
+  const connRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    // WebSocketの接続処理など
+    if (!roomNumber) {
+      console.error('Room number is undefined.');
+      return;
+    }
+
+    const newConn = new WebSocket(`ws://localhost:9090/ws?room=${encodeURIComponent(roomNumber)}`);
+    connRef.current = newConn;
+
+    newConn.onopen = () => {
+      console.log("Connection established to room " + roomNumber);
+    };
+
+    newConn.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      setChat(prev => [...prev, `${data.username}: ${data.message}`]);
+    };
+
+    newConn.onerror = (e) => {
+      console.error('WebSocket error:', e);
+    };
+
+    return () => {
+      newConn.close();
+    };
   }, [roomNumber]);
 
   const sendMessage = () => {
-    // メッセージ送信処理
-    setChat([...chat, message]);
-    setMessage('');
+    if (connRef.current && message) {
+      connRef.current.send(JSON.stringify({ username: "username", message }));
+      setMessage('');
+    }
   };
+
+  if (!roomNumber) {
+    return <div>Invalid room number.</div>;
+  }
 
   return (
     <div>
       <h1>WebSocket Chat in Room {roomNumber}</h1>
       <textarea value={chat.join('\n')} readOnly />
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-      />
+      <input type="text" value={message} onChange={(e) => setMessage(e.target.value)}
+             onKeyDown={(e) => e.key === 'Enter' && sendMessage()} />
       <button onClick={sendMessage}>Send</button>
     </div>
   );
