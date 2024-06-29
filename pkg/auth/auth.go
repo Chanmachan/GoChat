@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/gob"
 	"encoding/json"
 	"github.com/Chanmachan/GoChat/pkg/random"
 	"github.com/gorilla/sessions"
@@ -11,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 type UserInfo struct {
@@ -29,6 +31,8 @@ var (
 )
 
 func SetUp() {
+	gob.Register(time.Time{})
+	gob.Register(UserInfo{})
 	oauth2Config = &oauth2.Config{
 		ClientID:     os.Getenv("OAUTH_CLIENT_ID"),
 		ClientSecret: os.Getenv("OAUTH_CLIENT_SECRET"),
@@ -114,13 +118,11 @@ func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 	session.Values["access_token"] = token.AccessToken
 	session.Values["refresh_token"] = token.RefreshToken
 	session.Values["expiry"] = token.Expiry
-	//session.Values["userInfo"] = userInfo
-	//session.Values["id"] = userInfo.ID
-	session.Values["name"] = userInfo.Name
-	//session.Values["email"] = userInfo.Email
-	//session.Values["verified_email"] = userInfo.VerifiedEmail
-	session.Save(r, w)
-	tmp, _ := Store.Get(r, "auth-session")
-	log.Printf("Retrieved UserInfo: %+v", tmp.Values["name"])
+	session.Values["userInfo"] = userInfo
+	if err := session.Save(r, w); err != nil {
+		log.Printf("Failed to save session: %s", err.Error())
+		http.Error(w, "Failed to save session: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
