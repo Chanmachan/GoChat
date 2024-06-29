@@ -66,6 +66,7 @@ func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 	session, err := store.Get(r, "auth-session")
 	if err != nil {
 		http.Error(w, "Failed to get session: "+err.Error(), http.StatusInternalServerError)
+		log.Println("Failed to get session: " + err.Error())
 		return
 	}
 	if r.URL.Query().Get("state") != session.Values["state"] {
@@ -78,6 +79,7 @@ func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 	token, err := oauth2Config.Exchange(context.Background(), r.URL.Query().Get("code"), oauth2.SetAuthURLParam("code_verifier", session.Values["verifier"].(string)))
 	if err != nil {
 		http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
+		log.Println("Failed to exchange token: " + err.Error())
 		return
 	}
 	// トークンを使い、HTTPクライアントを取得
@@ -85,6 +87,7 @@ func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
 		http.Error(w, "Failed to get user info: "+err.Error(), http.StatusInternalServerError)
+		log.Println("Failed to get user info: " + err.Error())
 		return
 	}
 	// bodyをcloseするのは呼び出し側の責任
@@ -98,15 +101,21 @@ func CallBackHandler(w http.ResponseWriter, r *http.Request) {
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		http.Error(w, "Failed to read response body: "+err.Error(), http.StatusInternalServerError)
+		log.Println("Failed to read response body: " + err.Error())
 		return
 	}
 	var userInfo UserInfo
 	if err := json.Unmarshal(data, &userInfo); err != nil {
 		http.Error(w, "Failed to unmarshal user info: "+err.Error(), http.StatusInternalServerError)
+		log.Println("Failed to unmarshal user info: " + err.Error())
 		return
 	}
 	// ユーザー情報をセッションに保存 -> セッションの状態がSaveで自動的にクライアントに同期
+	session.Values["access_token"] = token.AccessToken
+	session.Values["refresh_token"] = token.RefreshToken
+	session.Values["expiry"] = token.Expiry
 	session.Values["userInfo"] = userInfo
+	log.Printf("Retrieved UserInfo: %+v", userInfo)
 	session.Save(r, w)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
