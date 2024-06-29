@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button, Input, VStack, Container, Heading } from '@chakra-ui/react';
 
 const RoomSelection: React.FC = () => {
   const [roomNumber, setRoomNumber] = useState('');
@@ -14,16 +15,22 @@ const RoomSelection: React.FC = () => {
   };
 
   return (
-    <div>
-      <input
-        type="text"
-        value={roomNumber}
-        onChange={(e) => setRoomNumber(e.target.value)}
-        placeholder="Enter Room Number"
-        autoFocus
-      />
-      <button onClick={joinRoom}>Join Room</button>
-    </div>
+    <Container centerContent p={8}>
+      <VStack spacing={4}>
+        <Heading size="lg">Enter a Room</Heading>
+        <Input
+          placeholder="Enter Room Number"
+          value={roomNumber}
+          onChange={(e) => setRoomNumber(e.target.value)}
+          size="lg"
+          autoFocus
+        />
+        <Button colorScheme="teal" onClick={joinRoom} size="lg">
+          Join Room
+        </Button>
+      </VStack>
+    </Container>
+
   );
 };
 
