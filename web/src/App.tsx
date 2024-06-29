@@ -6,16 +6,19 @@ import Login from './login/Login';
 import ChatRoom from './chat/ChatRoom';
 import RoomSelection from './room/RoomSelection';
 import LoginState from './login/LoginState';
+import {UserProvider} from './contexts/UserContexts';
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/room-selection" element={<RoomSelection />} />
-        <Route path="/chat-room/:roomNumber" element={<ChatRoom />} />
-        <Route path="/login-state" element={<LoginState />} />
-      </Routes>
+      <UserProvider>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/room-selection" element={<RoomSelection />} />
+          <Route path="/chat-room/:roomNumber" element={<ChatRoom />} />
+          <Route path="/login-state" element={<LoginState />} />
+        </Routes>
+      </UserProvider>
     </BrowserRouter>
   );
 };
