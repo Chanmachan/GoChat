@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from './logo.svg';
+import { ChakraProvider } from '@chakra-ui/react';
 import './App.css';
 import {BrowserRouter, Route, Router, Routes} from 'react-router-dom';
 import Login from './login/Login';
@@ -11,24 +11,26 @@ import ProtectedRoute from './login/ProtectedRoute';
 
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <UserProvider>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/room-selection" element={
-            <ProtectedRoute>
-              <RoomSelection />
-            </ProtectedRoute>
-          } />
-          <Route path="/chat-room/:roomNumber" element={
-            <ProtectedRoute>
-              <ChatRoom />
-            </ProtectedRoute>
-          } />
-          <Route path="/login-state" element={<LoginState />} />
-        </Routes>
-      </UserProvider>
-    </BrowserRouter>
+    <ChakraProvider>
+      <BrowserRouter>
+        <UserProvider>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/room-selection" element={
+              <ProtectedRoute>
+                <RoomSelection />
+              </ProtectedRoute>
+            } />
+            <Route path="/chat-room/:roomNumber" element={
+              <ProtectedRoute>
+                <ChatRoom />
+              </ProtectedRoute>
+            } />
+            <Route path="/login-state" element={<LoginState />} />
+          </Routes>
+        </UserProvider>
+      </BrowserRouter>
+    </ChakraProvider>
   );
 };
 
