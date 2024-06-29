@@ -93,8 +93,8 @@ const ChatRoom = () => {
 
   return (
     <Container maxW="container.md" centerContent p={4}>
-      <Flex direction="column" align="stretch" w="100%">
-        <Box position="fixed" right="10px" top="10px">
+      <VStack spacing={4} align="stretch" w="100%" position="relative">
+        <Box position="absolute" right="0">
           <Button colorScheme="red" size="sm" onClick={leaveRoom}>
             Leave Room
           </Button>
@@ -107,25 +107,19 @@ const ChatRoom = () => {
               <Box p={2} bg="blue.100" borderRadius="lg">
                 <Text fontWeight="bold">{msg.username}</Text>
                 <Text>{msg.message}</Text>
+                <Text p={1} fontSize="xs" color="gray.500">
+                  {new Date(msg.timestamp).toLocaleDateString()}<br/>
+                  {new Date(msg.timestamp).toLocaleTimeString()}
+                </Text>
               </Box>
-              <Text p={1} fontSize="xs" color="gray.500">
-                {new Date(msg.timestamp).toLocaleDateString()} {/* 年月日 */}
-                <br/>
-                {new Date(msg.timestamp).toLocaleTimeString()} {/* 時間 */}
-              </Text>
             </Flex>
           ))}
         </VStack>
         <Flex mt={2}>
-          <Input
-            placeholder="Type a message..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={(event) => event.key === 'Enter' && sendMessage()}
-          />
+          <Input placeholder="Type a message..." value={message} onChange={e => setMessage(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendMessage()} />
           <Button ml={2} colorScheme="blue" onClick={sendMessage}>Send</Button>
         </Flex>
-      </Flex>
+      </VStack>
     </Container>
   );
 };
