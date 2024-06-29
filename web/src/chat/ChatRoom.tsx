@@ -107,11 +107,12 @@ const ChatRoom = () => {
               <Box p={2} bg="blue.100" borderRadius="lg">
                 <Text fontWeight="bold">{msg.username}</Text>
                 <Text>{msg.message}</Text>
-                <Text p={1} fontSize="xs" color="gray.500">
-                  {new Date(msg.timestamp).toLocaleDateString()}<br/>
-                  {new Date(msg.timestamp).toLocaleTimeString()}
-                </Text>
               </Box>
+              <Text p={1} fontSize="xs" color="gray.500">
+                {new Date(msg.timestamp).toLocaleDateString()} {/* 年月日 */}
+                <br/>
+                {new Date(msg.timestamp).toLocaleTimeString()} {/* 時間 */}
+              </Text>
             </Flex>
           ))}
         </VStack>
