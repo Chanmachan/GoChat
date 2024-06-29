@@ -1,6 +1,11 @@
-import React from 'react';
+import { useUser } from '../contexts/UserContexts';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  // 分割代入でsetUserInfoを取り出して使えるようにする
+  const { setUserInfo } = useUser();
+  const navigate = useNavigate();
+
   const handleLogin = async () => {
     // 先にユーザー情報をチェック
     fetch('http://localhost:9090/api/login', {
@@ -15,8 +20,10 @@ const Login = () => {
       })
       .then(data => {
         console.log('Already logged in, redirecting:', data);
+        // ユーザー情報をcontextに保存
+        setUserInfo(data);
         // 既にログインしていれば、部屋選択ページなどへリダイレクトする
-        window.location.href = '/room-selection';
+        navigate('/room-selection');
       })
       .catch(error => {
         console.log('Need to authenticate:', error);
