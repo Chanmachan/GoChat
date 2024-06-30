@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { useUser } from '../contexts/UserContexts';
@@ -9,6 +9,7 @@ interface Message {
   message: string;
   picture?: string;
   timestamp: string;
+  self: boolean;
 }
 
 const ChatRoom = () => {
@@ -24,6 +25,7 @@ const ChatRoom = () => {
   const { userInfo } = useUser();
   const navigate = useNavigate();
   const toast = useToast();
+  const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
   // コンポーネントがマウントされた(roomNumberが変更されるたび)後に実行される
   useEffect(() => {
@@ -55,6 +57,7 @@ const ChatRoom = () => {
         message: data.message,
         picture: data.picture, // 画像があれば追加、なければ undefined
         timestamp: new Date().toISOString(),
+        self: data.username === userInfo?.name
       }]);
     };
 
@@ -66,6 +69,10 @@ const ChatRoom = () => {
       socket.close();
     };
   }, [roomNumber, toast]);
+
+  useEffect(() => {
+    endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chat]);
 
   const sendMessage = () => {
     if (connRef.current && message && userInfo) {
@@ -102,9 +109,9 @@ const ChatRoom = () => {
         <Text fontSize="2xl" fontWeight="bold">GoChat in Room {roomNumber}</Text>
         <VStack spacing={4} align="stretch" overflowY="auto" h="lg" p={4} borderWidth="1px" borderRadius="lg">
           {chat.map((msg, index) => (
-            <Flex key={index} align="center">
-              <Avatar size="sm" src={msg.picture} name={msg.username} mr={2} />
-              <Box p={2} bg="blue.100" borderRadius="lg">
+            <Flex key={index} align="center" direction={msg.self ? "row-reverse" : "row"}>
+              <Avatar size="sm" src={msg.picture} name={msg.username} mr={msg.self ? 0 : 2} ml={msg.self ? 2 : 0} />
+              <Box p={2} bg={msg.self ? "green.100" : "blue.100"} borderRadius="lg">
                 <Text fontWeight="bold">{msg.username}</Text>
                 <Text>{msg.message}</Text>
               </Box>
@@ -115,9 +122,10 @@ const ChatRoom = () => {
               </Text>
             </Flex>
           ))}
+          <div ref={endOfMessagesRef}/>
         </VStack>
         <Flex mt={2}>
-          <Input placeholder="Type a message..." value={message} onChange={e => setMessage(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendMessage()} />
+        <Input placeholder="Type a message..." value={message} onChange={e => setMessage(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendMessage()} />
           <Button ml={2} colorScheme="blue" onClick={sendMessage}>Send</Button>
         </Flex>
       </VStack>
