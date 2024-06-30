@@ -16,7 +16,7 @@ const RoomSelection: React.FC = () => {
 
   return (
     <Container centerContent p={8}>
-      <VStack spacing={4}>
+      <VStack spacing={4} align="center" justify="center" minH="80vh">
         <Heading size="lg">Enter a Room</Heading>
         <Input
           placeholder="Enter Room Number"

@@ -52,7 +52,7 @@ const LoginState = () => {
 
   return (
     <Container centerContent p={4}>
-      <VStack spacing={4} align="center" justify="center" minH="100vh">
+      <VStack spacing={4} align="center" justify="center" minH="80vh">
         <CircularProgress isIndeterminate color={status === 'success' ? 'green.300' : 'red.400'} thickness="12px" />
         <Box p={4} borderWidth="1px" borderRadius="lg" bg={status === 'success' ? 'green.100' : 'red.100'}>
           <Text fontSize="2xl" fontWeight="bold">{status === 'success' ? 'Authorization Successful!' : 'Authorization Failed'}</Text>
