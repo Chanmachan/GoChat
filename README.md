@@ -46,7 +46,9 @@ Redirect URIs: http://localhost:9090/api/callback
     SESSION_KEY=s(et_your_secure_random_value_here)
 
 ## Run
+Prepare two command prompts.  
 In case you are root directory of GoChat
+
 1. To start the backend server:
     ```bash
    go run ./cmd/gochat/main.go
