@@ -74,3 +74,5 @@ In case you are root directory of GoChat
 ![ChatRoom](docs/ChatRoom.png)
 
 ### Sample Talk
+https://github.com/Chanmachan/GoChat/assets/103916725/0406df5d-5aac-4846-a89e-83a2eae37530
+
