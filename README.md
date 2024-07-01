@@ -32,7 +32,7 @@ Redirect URIs: http://localhost:9090/api/callback
 ### Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/GoChat.git
+   git clone https://github.com/Chanmachan/GoChat.git
 2. Move into the project directory: 
     ```bash
     cd GoChat
