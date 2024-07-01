@@ -38,7 +38,7 @@ Redirect URIs: http://localhost:9090/api/callback
     cd GoChat
 3. Install the necessary dependencies:
     ```bash
-    npm install
+    (cd web; npm install)
 4. Place the .env file in the root directory, copy the contents of the .env_sample and add values. (OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET are taken from those registered in [Prerequisites](#google-cloud-console-setup-for-oauth).)
     ```text
     OAUTH_CLIENT_ID=(your_client_id_here)
