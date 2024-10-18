@@ -58,21 +58,4 @@ In case you are root directory of GoChat
 3. Go to http://localshost:3000  
    Then you will see my ~~cute Pokémon~~ character and the app start screen.
 
-### Login Screen
-![Login](docs/Login.png)
-
-### Google Authentication Screen
-![GoogleOAuth](docs/GoogleOAuth.png)
-
-### After Authentication Screen
-![Waiting](docs/Waiting.png)
-
-### Room Selection Screen
-![RoomSelection](docs/RoomSelection.png)
-
-### Chat Room Screen
-![ChatRoom](docs/ChatRoom.png)
-
-### Sample Talk
-https://github.com/Chanmachan/GoChat/assets/103916725/0406df5d-5aac-4846-a89e-83a2eae37530
 
