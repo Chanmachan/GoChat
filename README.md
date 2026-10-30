@@ -14,7 +14,7 @@ Welcome to GoChat! This application is a real-time chat platform utilizing WebSo
 ## Getting Started
 
 ### Prerequisites
-- Node.js
+- Node.js (v22.12+)
 - Go
 - A Google account for OAuth authentication.
 ##### Google Cloud Console Setup for OAuth
@@ -55,7 +55,8 @@ In case you are root directory of GoChat
 2. To start the frontend server:
     ```bash
    (cd web; npm start)
-3. Go to http://localshost:3000  
+3. Go to http://localhost:3000  
+   (The dev server listens on 127.0.0.1 only, so it is not reachable from other machines on your network.)  
    Then you will see my ~~cute Pokémon~~ character and the app start screen.
 
 

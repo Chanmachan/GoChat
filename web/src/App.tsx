@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChakraProvider } from '@chakra-ui/react';
 import './App.css';
-import {BrowserRouter, Route, Router, Routes} from 'react-router-dom';
+import {BrowserRouter, Route, Routes} from 'react-router';
 import Login from './login/Login';
 import ChatRoom from './chat/ChatRoom';
 import RoomSelection from './room/RoomSelection';
