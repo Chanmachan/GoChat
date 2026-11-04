@@ -1,5 +1,5 @@
 import { useUser } from '../contexts/UserContexts';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import {Box, Button, VStack, Image, Text, Container, Flex, useBreakpointValue} from '@chakra-ui/react';
 import MyAppIcon from '../static/zenigame.png'
 

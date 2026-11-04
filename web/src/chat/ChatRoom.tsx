@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { useUser } from '../contexts/UserContexts';
 import { Box, Button, VStack, Flex, Text, Input, useToast, Avatar, Container } from '@chakra-ui/react';

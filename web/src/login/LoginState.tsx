@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { Box, CircularProgress, Text, Container, VStack } from '@chakra-ui/react';
 import {useUser} from '../contexts/UserContexts';
 
